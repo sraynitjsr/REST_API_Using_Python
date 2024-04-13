@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
+from flask_caching import Cache
 
 app = Flask(__name__)
 api = Api(app)
+
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 students = {}
 next_student_id = 1
@@ -13,6 +16,7 @@ parser.add_argument('age')
 parser.add_argument('grade')
 
 class StudentList(Resource):
+    @cache.cached(timeout=60)
     def get(self):
         return students
 
@@ -27,6 +31,7 @@ class StudentList(Resource):
         return students[student_id], 201
 
 class Student(Resource):
+    @cache.memoize(timeout=60)
     def get(self, student_id):
         if student_id not in students:
             abort(404, message="Student {} not found".format(student_id))
