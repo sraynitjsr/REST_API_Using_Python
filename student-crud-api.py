@@ -1,18 +1,11 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 
 app = Flask(__name__)
 api = Api(app)
 
 students = {}
-
 next_student_id = 1
-
-def generate_student_id():
-    global next_student_id
-    current_id = next_student_id
-    next_student_id += 1
-    return current_id
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
@@ -58,6 +51,16 @@ class Student(Resource):
 
 api.add_resource(StudentList, '/students')
 api.add_resource(Student, '/students/<int:student_id>')
+
+def generate_student_id():
+    global next_student_id
+    current_id = next_student_id
+    next_student_id += 1
+    return current_id
+
+@app.route('/')
+def welcome():
+    return "Welcome to Student Management Service!"
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
